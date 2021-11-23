@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func goDotEnvVariable(key string) string {
+func GoDotEnvVariable(key string) string {
 
 	// load .env file
 	err := godotenv.Load("./environments/.env")
