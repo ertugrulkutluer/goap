@@ -7,12 +7,12 @@ import (
 )
 
 type Coin struct {
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty" binding:"required"`
-	Name      string             `bson:"name,omitempty`
-	Code      string             `bson:"code,omitempty`
-	Order     int                `bson:"order,omitempty`
-	Tags      []string           `bson:"tags" binding:"required"`
-	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
+	ID        primitive.ObjectID `json:"_id" bson:"_id,omitempty" binding:"required"`
+	Name      string             `bson:"name" json:"name"`
+	Code      string             `bson:"code" json:"code"`
+	Order     int                `bson:"order" json:"order"`
+	Tags      []string           `bson:"tags" json:"tags"`
+	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`
 }
 
