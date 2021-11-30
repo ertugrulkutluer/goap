@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	"github.com/ertugrul-k/goap/models"
@@ -21,7 +20,6 @@ func FindAll(ctx context.Context, coll *mongo.Collection) []models.Coin {
 	for cursor.Next(ctx) {
 		var user models.Coin
 		cursor.Decode(&user)
-		fmt.Printf("%+v\n", user)
 		users = append(users, user)
 	}
 	if err := cursor.Err(); err != nil {
