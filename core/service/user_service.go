@@ -21,6 +21,7 @@ func FindAll(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
 }
 
 func FindOne(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Add("content-type", "application/json")
 	coll := db.Collection("users")
 	user_id := mux.Vars(r)["_id"]
