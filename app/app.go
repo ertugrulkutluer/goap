@@ -5,59 +5,31 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
 
-	"github.com/ertugrul-k/apgo/middleware"
+	"github.com/ertugrul-k/goap/db"
 	"github.com/ertugrul-k/goap/routes"
 	"github.com/ertugrul-k/goap/utility"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+func initialize() (*mongo.Client, context.Context) {
+	client, ctx := db.GetDbContext()
+	return client, ctx
+}
+
+// Define HTTP request routes
 func Serve() {
-	mongo_connection_string := utility.GoDotEnvVariable("MONGO_URI")
+	client, ctx := initialize()
+	r := mux.NewRouter()
+	s := r.PathPrefix("/api").Subrouter()
+	db := client.Database("production")
+	routes.InitRoutes(s, db)
 	port := utility.GoDotEnvVariable("PORT")
-
-	// Mongo connection
-
-	client, err := mongo.NewClient(options.Client().ApplyURI(mongo_connection_string))
+	defer client.Disconnect(ctx)
+	err := http.ListenAndServe(":8080", s)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Starting server
-	if port == "" {
-		port = "8080"
-		fmt.Println("Defaulting to port %s", port)
-	}
-	fmt.Println("Listening on port %s", port)
-	uri := ":" + port
-
-	router := gin.New()
-	v1 := router.Group("/api/v1/")
-	r := v1.Use(middleware.CORSMiddleware(), middleware.JSONMiddleware())
-	r.GET("/2", func(c *gin.Context) {
-		time.Sleep(5 * time.Second)
-		c.String(http.StatusOK, "Welcome Gin Server")
-	})
-	routes.InitUserRoutes(r)
-	srv := &http.Server{
-		Addr:    uri,
-		Handler: router,
-	}
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
-	<-quit
-	fmt.Println("Shutting down server...")
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := srv.Shutdown(ctx); err != nil {
-		fmt.Println("Server forced to shutdown: ", err)
-	}
-	fmt.Println("Server exiting")
+	fmt.Println("Server Running on localhost:" + port)
 }

@@ -1,15 +1,22 @@
 package routes
 
 import (
-	"fmt"
+	"net/http"
 
-	"github.com/gin-gonic/gin"
+	"github.com/ertugrul-k/goap/core/service"
+	"github.com/gorilla/mux"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func InitUserRoutes(r gin.IRoutes) {
-	r.POST("users", userCreate)
+func InitUserRoutes(r *mux.Router, db *mongo.Database) {
+	r.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		service.FindAll(w, r, db)
+	}).Methods("GET")
+	r.HandleFunc("/users/{_id}", func(w http.ResponseWriter, r *http.Request) {
+		service.FindOne(w, r, db)
+	}).Methods("GET")
 }
 
-func userCreate(c *gin.Context) {
-	fmt.Println("test1")
-}
+// func userCreate(r *mux.Router) {
+// 	fmt.Println("test1")
+// }
