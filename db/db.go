@@ -11,8 +11,12 @@ import (
 )
 
 func GetDbContext() (*mongo.Client, context.Context) {
+	conn_str, err := utility.GoDotEnvVariable("MONGO_URI")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 	return connect(
-		utility.GoDotEnvVariable("MONGO_URI"),
+		conn_str,
 	)
 }
 

@@ -7,7 +7,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GoDotEnvVariable(key string) string {
+func GoDotEnvVariable(key string) (string, error) {
 
 	// load .env file
 	err := godotenv.Load("./environments/.env")
@@ -16,5 +16,5 @@ func GoDotEnvVariable(key string) string {
 		log.Fatalf("Error loading .env file")
 	}
 
-	return os.Getenv(key)
+	return os.Getenv(key), err
 }

@@ -25,9 +25,12 @@ func Serve() {
 	s := r.PathPrefix("/api").Subrouter()
 	db := client.Database("production")
 	routes.InitRoutes(s, db)
-	port := utility.GoDotEnvVariable("PORT")
+	port, err := utility.GoDotEnvVariable("PORT")
+	if err != nil {
+		port = "8080"
+	}
 	defer client.Disconnect(ctx)
-	err := http.ListenAndServe(":8080", s)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), s)
 	if err != nil {
 		log.Fatal(err)
 	}
