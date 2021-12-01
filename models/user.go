@@ -11,7 +11,6 @@ type User struct {
 	Name      string             `json:"name" bson:"name"`
 	Surname   string             `json:"surname" bson:"surname"`
 	PinCode   string             `json:"pincode" bson:"pincode"`
-	Email     string             `json:"email" bson:"email"`
 	Room      primitive.ObjectID `json:"room" bson:"room"`
 	CreatedAt time.Time          `json:"created_at" bson:"created_at"`
 	UpdatedAt time.Time          `json:"updated_at" bson:"updated_at"`

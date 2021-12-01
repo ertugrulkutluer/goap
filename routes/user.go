@@ -10,7 +10,3 @@ func InitUserRoutes(r *mux.Router) {
 	r.HandleFunc("/users/{_id}", service.FindOne).Methods("GET")
 	r.HandleFunc("/users", service.CreateUser).Methods("POST")
 }
-
-// func userCreate(r *mux.Router) {
-// 	fmt.Println("test1")
-// }
