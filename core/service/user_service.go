@@ -6,35 +6,35 @@ import (
 	"time"
 
 	"github.com/ertugrul-k/goap/core/repo"
+	. "github.com/ertugrul-k/goap/db"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func FindAll(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
+func FindAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Add("content-type", "application/json")
-	coll := db.Collection("users")
+	coll := DB.Database.Collection("users")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	users := repo.FindAll(ctx, coll)
-	respondWithJson(w, http.StatusCreated, "", users)
+	RespondWithJson(w, http.StatusCreated, "", users)
 }
 
-func FindOne(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
+func FindOne(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Add("content-type", "application/json")
-	coll := db.Collection("users")
+	coll := DB.Database.Collection("users")
 	user_id := mux.Vars(r)["_id"]
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	user := repo.FindOne(ctx, coll, user_id)
-	respondWithJson(w, http.StatusCreated, "", user)
+	RespondWithJson(w, http.StatusCreated, "", user)
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
+func CreateUser(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	coll := db.Collection("users")
+	coll := DB.Database.Collection("users")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	user := repo.CreateUser(ctx, coll, r.Body)
 
-	respondWithJson(w, http.StatusCreated, "", user)
+	RespondWithJson(w, http.StatusCreated, "", user)
 }
