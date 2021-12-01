@@ -19,7 +19,7 @@ type database struct {
 var DB database
 
 func GetDbContext(env string) {
-	conn_str, err := utility.GoDotEnvVariable("MONGO_URI", "staging")
+	conn_str, err := utility.GoDotEnvVariable("MONGO_URI", env)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

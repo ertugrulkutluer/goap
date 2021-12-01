@@ -11,6 +11,7 @@ import (
 	"github.com/ertugrul-k/goap/middleware"
 	"github.com/ertugrul-k/goap/routes"
 	"github.com/ertugrul-k/goap/utility"
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -21,7 +22,7 @@ var (
 )
 
 func initialize_db() {
-	db.GetDbContext("production")
+	db.GetDbContext(Env)
 }
 
 func createRouter() {
@@ -33,7 +34,7 @@ func createRouter() {
 func init() {
 	flag.StringVar(&Env, "env", "development", "current env")
 	flag.Parse()
-	fmt.Println(Env)
+	log.Println(fmt.Sprintf("Working Environment: %s\n", Env))
 }
 
 // Define HTTP request routes
@@ -45,10 +46,11 @@ func Serve() {
 	if err != nil {
 		port = "8080"
 	}
+
 	defer DB.Client.Disconnect(DB.Ctx)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), r)
+	fmt.Println("Server Running on localhost:" + port)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), handlers.CompressHandler(r))
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Server Running on localhost:" + port)
 }
