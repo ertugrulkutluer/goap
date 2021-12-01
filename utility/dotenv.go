@@ -7,10 +7,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func GoDotEnvVariable(key string) (string, error) {
-
+func GoDotEnvVariable(key string, env string) (string, error) {
+	var path string
 	// load .env file
-	err := godotenv.Load("./environments/.env")
+	if path = "./environments/.env.production"; env == "staging" {
+		path = "./environments/.env.staging"
+	}
+	err := godotenv.Load(path)
 
 	if err != nil {
 		log.Fatalf("Error loading .env file")

@@ -11,7 +11,7 @@ import (
 // 	respondWithJson(w, code, map[string]string{"error": msg})
 // }
 
-func respondWithJson(w http.ResponseWriter, code int, message string, payload interface{}) error {
+func RespondWithJson(w http.ResponseWriter, code int, message string, payload interface{}) error {
 	w.WriteHeader(code)
 	httpResponse := request.NewResponse(code, message, payload)
 	err := json.NewEncoder(w).Encode(httpResponse)

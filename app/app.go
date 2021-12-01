@@ -1,36 +1,52 @@
 package app
 
 import (
-	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/ertugrul-k/goap/db"
+	. "github.com/ertugrul-k/goap/db"
+	"github.com/ertugrul-k/goap/middleware"
 	"github.com/ertugrul-k/goap/routes"
 	"github.com/ertugrul-k/goap/utility"
 	"github.com/gorilla/mux"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func initialize() (*mongo.Client, context.Context) {
-	client, ctx := db.GetDbContext()
-	return client, ctx
+var (
+	Env  string
+	port int
+	r    *mux.Router
+)
+
+func initialize_db() {
+	db.GetDbContext("production")
+}
+
+func createRouter() {
+	r = mux.NewRouter()
+	r = r.PathPrefix("/api").Subrouter()
+	r.Use(middleware.CORSMiddleware)
+}
+
+func init() {
+	flag.StringVar(&Env, "env", "development", "current env")
+	flag.Parse()
+	fmt.Println(Env)
 }
 
 // Define HTTP request routes
 func Serve() {
-	client, ctx := initialize()
-	r := mux.NewRouter()
-	s := r.PathPrefix("/api").Subrouter()
-	db := client.Database("production")
-	routes.InitRoutes(s, db)
-	port, err := utility.GoDotEnvVariable("PORT")
+	initialize_db()
+	createRouter()
+	routes.InitRoutes(r)
+	port, err := utility.GoDotEnvVariable("PORT", Env)
 	if err != nil {
 		port = "8080"
 	}
-	defer client.Disconnect(ctx)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), s)
+	defer DB.Client.Disconnect(DB.Ctx)
+	err = http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 	if err != nil {
 		log.Fatal(err)
 	}
