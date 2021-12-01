@@ -15,6 +15,9 @@ func InitUserRoutes(r *mux.Router, db *mongo.Database) {
 	r.HandleFunc("/users/{_id}", func(w http.ResponseWriter, r *http.Request) {
 		service.FindOne(w, r, db)
 	}).Methods("GET")
+	r.HandleFunc("/users", func(w http.ResponseWriter, r *http.Request) {
+		service.CreateUser(w, r, db)
+	}).Methods("POST")
 }
 
 // func userCreate(r *mux.Router) {

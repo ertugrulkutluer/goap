@@ -32,6 +32,9 @@ func FindOne(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
 
 func CreateUser(w http.ResponseWriter, r *http.Request, db *mongo.Database) {
 	w.Header().Set("Content-Type", "application/json")
+	coll := db.Collection("users")
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	user := repo.CreateUser(ctx, coll, r.Body)
 
-	// user := repo.CreateUser(ctx, coll, r.Body)
+	respondWithJson(w, http.StatusCreated, "", user)
 }
