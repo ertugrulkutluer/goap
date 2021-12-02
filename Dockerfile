@@ -4,7 +4,7 @@ FROM golang
 ARG ssh_prv_key
 ARG ssh_pub_key
 ENV GO111MODULE=on \
-    env=production
+    env={}
 
 
 EXPOSE 8080
@@ -42,4 +42,4 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build
 RUN rm -rf /root/.ssh/
 
 EXPOSE 8080
-ENTRYPOINT "/app/goap"
+ENTRYPOINT ["/app/goap", ""]
