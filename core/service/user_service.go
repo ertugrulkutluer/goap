@@ -2,39 +2,79 @@ package service
 
 import (
 	"context"
-	"net/http"
 	"time"
 
 	"github.com/ertugrul-k/goap/core/repo"
 	. "github.com/ertugrul-k/goap/db"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-func FindAll(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Add("content-type", "application/json")
+func FindAll(r *fiber.Ctx) error {
 	coll := DB.Database.Collection("users")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	users := repo.FindAll(ctx, coll)
-	RespondWithJson(w, http.StatusCreated, "", users)
+	err := repo.FindAll(ctx, coll, r)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Users Not found",
+			"error":   err,
+		})
+	}
+	return err
 }
 
-func FindOne(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Add("content-type", "application/json")
+func FindOne(r *fiber.Ctx) error {
 	coll := DB.Database.Collection("users")
-	user_id := mux.Vars(r)["_id"]
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	user := repo.FindOne(ctx, coll, user_id)
-	RespondWithJson(w, http.StatusCreated, "", user)
+	err := repo.FindOne(ctx, coll, r)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found",
+			"error":   err,
+		})
+	}
+	return err
 }
 
-func CreateUser(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
+func Create(r *fiber.Ctx) error {
 	coll := DB.Database.Collection("users")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	user := repo.CreateUser(ctx, coll, r.Body)
+	err := repo.Create(ctx, coll, r)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found",
+			"error":   err,
+		})
+	}
+	return err
+}
 
-	RespondWithJson(w, http.StatusCreated, "", user)
+func Update(r *fiber.Ctx) error {
+	coll := DB.Database.Collection("users")
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	err := repo.Update(ctx, coll, r)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found",
+			"error":   err,
+		})
+	}
+	return err
+}
+
+func Delete(r *fiber.Ctx) error {
+	coll := DB.Database.Collection("users")
+	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	err := repo.Delete(ctx, coll, r)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found",
+			"error":   err,
+		})
+	}
+	return err
 }

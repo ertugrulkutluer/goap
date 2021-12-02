@@ -1,12 +1,17 @@
 package routes
 
 import (
-	"github.com/ertugrul-k/goap/core/service"
-	"github.com/gorilla/mux"
+	user_service "github.com/ertugrul-k/goap/core/service"
+	"github.com/gofiber/fiber/v2"
 )
 
-func InitUserRoutes(r *mux.Router) {
-	r.HandleFunc("/users", service.FindAll).Methods("GET")
-	r.HandleFunc("/users/{_id}", service.FindOne).Methods("GET")
-	r.HandleFunc("/users", service.CreateUser).Methods("POST")
+func InitUserRoutes(r fiber.Router) {
+
+	users := r.Group("/users")
+
+	users.Get("/", user_service.FindAll)
+	users.Get("/:_id", user_service.FindOne)
+	users.Post("/", user_service.Create)
+	users.Put("/:_id", user_service.Update)
+	users.Delete("/:_id", user_service.Delete)
 }
