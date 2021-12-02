@@ -36,7 +36,7 @@ func connect(mongo_connection_string, env string) {
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
 	DB.Client = client
 	DB.Ctx = ctx
-	DB.Database = client.Database(env)
+	DB.Database = client.Database("production") // client.Database(env)
 	err = DB.Client.Connect(DB.Ctx)
 	if err != nil {
 		log.Fatal(err)

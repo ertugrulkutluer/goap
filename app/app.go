@@ -3,7 +3,6 @@ package app
 import (
 	"fmt"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/ertugrul-k/goap/db"
@@ -11,14 +10,14 @@ import (
 	"github.com/ertugrul-k/goap/middleware"
 	"github.com/ertugrul-k/goap/routes"
 	"github.com/ertugrul-k/goap/utility"
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
 var (
 	Env  string
 	port int
-	r    *mux.Router
+	r    fiber.Router
+	app  *fiber.App
 )
 
 func initialize_db() {
@@ -26,15 +25,17 @@ func initialize_db() {
 }
 
 func createRouter() {
-	r = mux.NewRouter()
-	r = r.PathPrefix("/api").Subrouter()
-	r.Use(middleware.CORSMiddleware)
+	app = fiber.New()
+	app_middleware := middleware.CORSMiddleware(app)
+	r = app_middleware.Group("/api")
 }
 
 func init() {
 	// flag.StringVar(&Env, "env", "development", "current env")
 	// flag.Parse()
-	Env = os.Getenv("env")
+	if Env = os.Getenv("env"); Env == "" {
+		Env = "staging"
+	}
 	log.Println(fmt.Sprintf("Working Environment: %s\n", Env))
 }
 
@@ -49,9 +50,11 @@ func Serve() {
 	}
 
 	defer DB.Client.Disconnect(DB.Ctx)
-	fmt.Println("Server Running on localhost:" + port)
-	err = http.ListenAndServe(fmt.Sprintf(":%s", port), handlers.CompressHandler(r))
+
+	err = app.Listen(fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		fmt.Println("Server Running on localhost:" + port)
 	}
 }

@@ -1,11 +1,10 @@
 package routes
 
 import (
-	"github.com/ertugrul-k/goap/utility"
-	"github.com/gorilla/mux"
+	"github.com/gofiber/fiber/v2"
 )
 
-func InitRoutes(r *mux.Router) {
+func InitRoutes(r fiber.Router) {
 	InitUserRoutes(r)
-	utility.RouteWalk(r)
+	// utility.RouteWalk(r)
 }
