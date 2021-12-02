@@ -4,7 +4,7 @@ FROM golang
 ARG ssh_prv_key
 ARG ssh_pub_key
 ENV GO111MODULE=on \
-    env=staging
+    env=production
 
 
 EXPOSE 8080
