@@ -1,10 +1,10 @@
 package app
 
 import (
-	"flag"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/ertugrul-k/goap/db"
 	. "github.com/ertugrul-k/goap/db"
@@ -32,8 +32,9 @@ func createRouter() {
 }
 
 func init() {
-	flag.StringVar(&Env, "env", "development", "current env")
-	flag.Parse()
+	// flag.StringVar(&Env, "env", "development", "current env")
+	// flag.Parse()
+	Env = os.Getenv("env")
 	log.Println(fmt.Sprintf("Working Environment: %s\n", Env))
 }
 
