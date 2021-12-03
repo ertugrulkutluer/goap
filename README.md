@@ -1,2 +1,2 @@
 # goap
-API service written in Golang & using Docker
+API service written in Golang & Docker
