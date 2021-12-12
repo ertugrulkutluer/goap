@@ -14,4 +14,7 @@ func InitUserRoutes(r fiber.Router) {
 	users.Post("/", user_service.Create)
 	users.Put("/:_id", user_service.Update)
 	users.Delete("/:_id", user_service.Delete)
+
+	users.Post("/login", user_service.Login)
+	users.Post("/register", user_service.Register)
 }

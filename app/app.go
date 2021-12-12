@@ -5,11 +5,11 @@ import (
 	"log"
 	"os"
 
+	c "github.com/ertugrul-k/goap/config"
 	"github.com/ertugrul-k/goap/db"
 	. "github.com/ertugrul-k/goap/db"
 	"github.com/ertugrul-k/goap/middleware"
 	"github.com/ertugrul-k/goap/routes"
-	"github.com/ertugrul-k/goap/utility"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -31,12 +31,11 @@ func createRouter() {
 }
 
 func init() {
-	// flag.StringVar(&Env, "env", "development", "current env")
-	// flag.Parse()
 	if Env = os.Getenv("env"); Env == "" {
 		Env = "staging"
 	}
 	log.Println(fmt.Sprintf("Working Environment: %s\n", Env))
+	c.Config.Read(Env)
 }
 
 // Define HTTP request routes
@@ -44,14 +43,10 @@ func Serve() {
 	initialize_db()
 	createRouter()
 	routes.InitRoutes(r)
-	port, err := utility.GoDotEnvVariable("PORT", Env)
-	if err != nil {
-		port = "8080"
-	}
-
+	port := c.Config.Port
 	defer DB.Client.Disconnect(DB.Ctx)
 
-	err = app.Listen(fmt.Sprintf(":%s", port))
+	err := app.Listen(fmt.Sprintf(":%s", port))
 	if err != nil {
 		log.Fatal(err)
 	} else {

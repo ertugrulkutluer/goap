@@ -5,8 +5,13 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"time"
 
+	"github.com/ertugrul-k/goap/config"
+	c "github.com/ertugrul-k/goap/config"
 	"github.com/ertugrul-k/goap/models"
+	"github.com/ertugrul-k/goap/models/request"
+	"github.com/ertugrul-k/goap/utility"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -79,7 +84,6 @@ func FindAll(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
 		"last_page": last,
 		"limit":     limit,
 	})
-
 }
 
 func FindOne(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
@@ -118,6 +122,11 @@ func Create(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
 			"error":   err,
 		})
 	}
+	errors := validateStruct(user)
+	if errors != nil {
+		return r.JSON(errors)
+
+	}
 	result, err := coll.InsertOne(ctx, user)
 	if err != nil {
 		switch err.(type) {
@@ -143,6 +152,10 @@ func Update(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
 			"message": "Failed to parse body.",
 			"error":   err,
 		})
+	}
+	errors := validateStruct(user)
+	if errors != nil {
+		return r.JSON(errors)
 	}
 	obj_id, err := primitive.ObjectIDFromHex(r.Params("_id"))
 	if err != nil {
@@ -190,5 +203,126 @@ func Delete(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
 	return r.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "User deleted successfully.",
+	})
+}
+
+func Login(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
+	var body *request.Login
+	var user *models.User
+	if err := r.BodyParser(&body); err != nil {
+		log.Println(err)
+		return r.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to parse body.",
+			"error":   err,
+		})
+	}
+	errors := validateStruct(body)
+	if errors != nil {
+		return r.JSON(errors)
+	}
+	filter := bson.M{"email": body.Email, "password": utility.ToMd5(body.Password)}
+	result := coll.FindOne(ctx, filter)
+	if err := result.Err(); err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found.",
+			"error":   err,
+		})
+	}
+	err := result.Decode(&user)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found.",
+			"error":   err,
+		})
+	}
+
+	token, err := login_jwt(user, config.Config.Env)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Some error occured while creating token.",
+			"error":   err,
+		})
+	}
+	return r.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"token":   token,
+		"name":    user.Name,
+		"surname": user.Surname,
+		"email":   user.Email,
+	})
+}
+
+func Register(ctx context.Context, coll *mongo.Collection, r *fiber.Ctx) error {
+
+	var user *models.User
+	if err := r.BodyParser(&user); err != nil {
+		log.Println(err)
+		return r.Status(400).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to parse body.",
+			"error":   err,
+		})
+	}
+	exists, err := coll.CountDocuments(ctx, bson.M{"email": user.Email})
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found.",
+			"error":   err,
+		})
+	} else if exists != 0 {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "This email registered before.",
+			"error":   err,
+		})
+	}
+	active := true
+	user.Role = "user"
+	user.Password = utility.ToMd5(user.Password)
+	user.CreatedAt = time.Now()
+	user.UpdatedAt = time.Now()
+	user.PinCode = strconv.Itoa(utility.RandomInt(1000, 9999))
+	user.IsActive = &active
+	errors := validateStruct(user)
+	if errors != nil {
+		return r.JSON(errors)
+	}
+	result, err := coll.InsertOne(ctx, user)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found.",
+			"error":   err,
+		})
+	}
+	inserted_id := result.InsertedID
+	filter := bson.M{"_id": inserted_id}
+	found_user := coll.FindOne(ctx, filter)
+	if err = found_user.Err(); err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "User Not found.",
+			"error":   err,
+		})
+	}
+	token, err := login_jwt(user, c.Config.Env)
+	if err != nil {
+		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success": false,
+			"message": "Some error occured while creating token.",
+			"error":   err,
+		})
+	}
+	return r.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"token":   token,
+		"name":    user.Name,
+		"surname": user.Surname,
+		"email":   user.Email,
 	})
 }

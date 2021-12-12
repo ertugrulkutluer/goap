@@ -7,74 +7,47 @@ import (
 	"github.com/ertugrul-k/goap/core/repo"
 	. "github.com/ertugrul-k/goap/db"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func FindAll(r *fiber.Ctx) error {
+func define() (context.Context, *mongo.Collection) {
 	coll := DB.Database.Collection("users")
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	err := repo.FindAll(ctx, coll, r)
-	if err != nil {
-		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "Users Not found",
-			"error":   err,
-		})
-	}
-	return err
+	return ctx, coll
+
+}
+
+func FindAll(r *fiber.Ctx) error {
+	cx, cl := define()
+	return repo.FindAll(cx, cl, r)
 }
 
 func FindOne(r *fiber.Ctx) error {
-	coll := DB.Database.Collection("users")
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	err := repo.FindOne(ctx, coll, r)
-	if err != nil {
-		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "User Not found",
-			"error":   err,
-		})
-	}
-	return err
+	cx, cl := define()
+	return repo.FindOne(cx, cl, r)
 }
 
 func Create(r *fiber.Ctx) error {
-	coll := DB.Database.Collection("users")
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	err := repo.Create(ctx, coll, r)
-	if err != nil {
-		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "User Not found",
-			"error":   err,
-		})
-	}
-	return err
+	cx, cl := define()
+	return repo.Create(cx, cl, r)
 }
 
 func Update(r *fiber.Ctx) error {
-	coll := DB.Database.Collection("users")
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	err := repo.Update(ctx, coll, r)
-	if err != nil {
-		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "User Not found",
-			"error":   err,
-		})
-	}
-	return err
+	cx, cl := define()
+	return repo.Update(cx, cl, r)
 }
 
 func Delete(r *fiber.Ctx) error {
-	coll := DB.Database.Collection("users")
-	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
-	err := repo.Delete(ctx, coll, r)
-	if err != nil {
-		return r.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"success": false,
-			"message": "User Not found",
-			"error":   err,
-		})
-	}
-	return err
+	cx, cl := define()
+	return repo.Delete(cx, cl, r)
+}
+
+func Login(r *fiber.Ctx) error {
+	cx, cl := define()
+	return repo.Login(cx, cl, r)
+}
+
+func Register(r *fiber.Ctx) error {
+	cx, cl := define()
+	return repo.Register(cx, cl, r)
 }

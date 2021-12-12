@@ -1,41 +1,19 @@
 package request
 
-type (
-	// Response is the http json response schema
-	Response struct {
-		Status  int         `json:"status"`
-		Message string      `json:"message"`
-		Content interface{} `json:"content"`
-	}
-
-	// PaginatedResponse is the paginated response json schema
-	PaginatedResponse struct {
-		Count    int         `json:"count"`
-		Next     string      `json:"next"`
-		Previous string      `json:"previous"`
-		Results  interface{} `json:"results"`
-	}
-)
-
-// NewResponse is the Response struct factory function.
-func NewResponse(status int, message string, content interface{}) *Response {
-	return &Response{
-		Status:  status,
-		Message: message,
-		Content: content,
-	}
+type ErrorResponse struct {
+	FailedField string
+	Tag         string
+	Value       string
 }
 
-// NewPaginatedResponse will created http paginated response
-func NewPaginatedResponse(status, count int, message, next, prev string, results interface{}) *Response {
-	return &Response{
-		Status:  status,
-		Message: message,
-		Content: &PaginatedResponse{
-			Count:    count,
-			Next:     next,
-			Previous: prev,
-			Results:  results,
-		},
-	}
+type Login struct {
+	Email    string `json:"email" bson:"email" validate:"required,email,min=6,max=32"`
+	Password string `json:"password" bson:"password" validate:"required,min=6,max=32"`
+}
+
+type Register struct {
+	Email    string `json:"email" bson:"email" validate:"required,email,min=6,max=32"`
+	Password string `json:"password" bson:"password" validate:"required,min=6,max=32"`
+	Name     string `json:"name" bson:"name" validate:"required"`
+	Surname  string `json:"surname" bson:"surname" validate:"required"`
 }
