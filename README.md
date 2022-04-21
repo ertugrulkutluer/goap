@@ -1,2 +1,3 @@
 # goap
-API service written in Golang & Docker
+API service written in Golang,
+Techs used Fiber, MongoDB, JWT & Docker.
